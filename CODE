@@ -1,0 +1,4068 @@
+function Beadstask___wstrube_et_al_2018(sub, name, gender, illness, age, run)
+
+
+% BEADSTASK
+
+% W. Strube, 2018
+
+% This function runs the decision making task known as the "urn-task"
+
+% or "beads task" as first described by Phillips and Edwards 1966.
+
+% please refer to Strube et al. 2018 for further description 
+
+
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% start cogent, open libraries, and configure window and keyboard propoerties
+
+
+cgloadlib
+
+
+config_display(0, 5, [0 0 0], [0 0 0],'Calibri',30, 21, 0)
+
+
+config_keyboard(10,1,'exclusive')
+
+
+start_cogent;
+
+
+clearkeys;
+
+
+readkeys;
+
+
+ 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% Note: this is an input function. Therefore please specify subject number, 
+
+
+% and initials of subject as string as well as age as a number. See example:
+
+
+% sub = 'S01';  % name = 'AbCd';  % age = 25; % illness = 1 (1 = patient,
+
+
+% 2 = healhty control); run = 1 (start with 1 for the first run; if the
+
+
+% program breaks down, use 2 to start a second run
+
+
+ 
+
+
+% check if input arguments are correct
+
+
+if ~isstr(sub) || ~isstr(name) || ~isnumeric(gender) || ~isnumeric(illness) || ~isnumeric(age) || ~isnumeric(run)
+
+
+    fprintf('\n\n\nWrong inputs!\nPlease use inputs such as: (''s1,'', ''AB'', ''1/2'', ''0/1'', ''33'' and ''r1'')');
+
+
+    cgshut
+
+
+    stop_cogent
+
+
+    clear all
+
+
+    return
+
+
+end
+
+
+ 
+
+
+% Creates individual data folders and logs
+
+
+datafile = sprintf('C:\\Users\\Admin\\Documents\\MATLAB\\data_beadstask_%s_%s_%2g_%2g_%2g_%2g.mat', sub, name, gender, illness, age, run);
+
+
+logfile  = sprintf('C:\\Users\\Admin\\Documents\\MATLAB\\logfile_beadstask_%s_%s_%2g_%2g_%2g_%2g.log', sub, name, gender, illness, age, run);
+
+
+config_log(logfile);
+
+
+% configures nomenclature of logfile
+
+
+ 
+
+
+if exist(datafile,'file')
+
+
+    fprintf(['\n\nA file with this subject and/or run',...
+
+
+        ' number already exists!\nPlease specify a different name... \n']);
+
+
+    cgshut
+
+
+    stop_cogent
+
+
+    clear all
+
+
+    return
+
+
+else
+
+
+end
+
+
+% returns an error message, if invalid subject codes are put in
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% configure Data structure of function outputs
+
+
+ 
+
+
+Data.name     = name;
+
+
+Data.age      = age;
+
+
+Data.ID       = sub;
+
+
+Data.gender   = gender;  % answer with 1 = female or with 2 = male
+
+
+Data.illness  = illness;   % answer with 0 = no schizophrenia or with 1 = schizophrenia
+
+
+Data.run      = run;
+
+
+ 
+
+
+Data.filename = (sprintf('beadstask_%s_%s_%2g_%2g_%2g_%2g', sub, name, gender, illness, age, run));
+
+
+ 
+
+
+save(datafile,'Data');
+
+
+ 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% configure outputs for the logfile for better overview
+
+
+ 
+
+
+beadresponse        = [0 1];                % response to each bead (0=draw more beads, 1= decision);
+
+
+decision_box        = [1 2];                % decision_box 1= green or 2= blue; // 1= orange or 2= voilet;
+
+
+beadrating          = [1 2 3 4 5 6 7];      % beadrating 1 to 7;
+
+
+%--------------------------------------------------------------------------
+
+
+% old colours:
+
+
+% light green cgpencol(0.2,0.8,0.2); -> now cgpencol(0.05859375,0.65234375,0.07421875);
+
+
+% light blue cgpencol(0.2,0.7,0.9); --> now cgpencol(0.04296875,0.41796875,0.97265625);
+
+
+ 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% before starting the tasks you can define whether you want to start with
+
+
+% the D2D version or jump ahead to the PEV Version
+
+
+ 
+
+
+clearkeys;
+
+
+readkeys;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% Starting screen
+
+
+part = 1;
+
+
+wait(500);
+
+
+ 
+
+
+cgflip(0,0,0);
+
+
+cgfont('Calibri',30);
+
+
+cgpencol(1,1,1);
+
+
+cgtext('The experimental task is about to begin.',0,50);
+
+
+cgtext('Get ready!',0,0);
+
+
+cgtext('Press SPACEBAR key to start.',0,-100);
+
+
+cgflip(0,0,0);
+
+
+ 
+
+
+waitkeydown(inf, 71);   % wait for key press before experiment starts
+
+
+clearkeys;
+
+
+ 
+
+
+ 
+
+
+Data.when_start    = datestr([now],0);   % logs the date and time
+
+
+ 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% the following calculations create a matrix of the random beads sequences
+
+
+ 
+
+
+%--------------------------------------------------------------------------
+
+
+% Bead sequences for the D2D 80/20 Version
+
+
+%--------------------------------------------------------------------------
+
+
+for i = 1 : 12;
+
+
+    if i == 1 || i == 2;
+
+
+        x = [2 1 1 1 1];rand_x1=x(randperm(numel(x)));rand_x2=x(randperm(numel(x)));rand_x3=x(randperm(numel(x)));rand_x4=x(randperm(numel(x)));
+
+
+        beadcolour = [rand_x1 rand_x2 rand_x3 rand_x4,80,1,0];
+
+
+        Storage_Matrix(i,:) = [beadcolour];
+
+
+        % = 2 Series starting with a chance of 80% green
+
+
+    elseif i == 3 || i == 4;
+
+
+        x = [1 2 2 2 2];rand_x1=x(randperm(numel(x)));rand_x2=x(randperm(numel(x)));rand_x3=x(randperm(numel(x)));rand_x4=x(randperm(numel(x)));
+
+
+        beadcolour = [rand_x1 rand_x2 rand_x3 rand_x4,20,1,0];
+
+
+        Storage_Matrix(i,:) = [beadcolour];
+
+
+        % = 2 Series starting with a chance of 20% green
+
+
+    elseif i == 5 || i == 6;
+
+
+        x = [2 2 1 1 1];rand_x1=x(randperm(numel(x)));rand_x2=x(randperm(numel(x)));rand_x3=x(randperm(numel(x)));rand_x4=x(randperm(numel(x)));
+
+
+        beadcolour = [rand_x1 rand_x2 rand_x3 rand_x4,60,1,0];
+
+
+        Storage_Matrix(i,:) = [beadcolour];
+
+
+        % = 2 Series starting with a chance of 60% green
+
+
+    elseif i == 7 || i == 8;
+
+
+        x = [1 1 2 2 2];rand_x1=x(randperm(numel(x)));rand_x2=x(randperm(numel(x)));rand_x3=x(randperm(numel(x)));rand_x4=x(randperm(numel(x)));
+
+
+        beadcolour = [rand_x1 rand_x2 rand_x3 rand_x4,40,1,0];
+
+
+        Storage_Matrix(i,:) = [beadcolour];
+
+
+        % = 2 Series starting with a chance of 40% green
+
+
+    elseif i > 8;
+
+
+        x = [1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2];
+
+
+        beadcolour = [x(randperm(numel(x))),50,1,0];
+
+
+        % = 4 Series_50_green_50_blue
+
+
+        Storage_Matrix(i,:) = [beadcolour];
+
+
+    end
+
+
+end
+
+
+clear i x beadcolour rand_x1 rand_x2 rand_x3 rand_x4
+
+
+Storage_Matrix(13,:) = [1 1 1 2 1 1 1 2 1 1 2 1 1 1 2 1 1 1 1 1, 80,1,11];
+
+
+Storage_Matrix(14,:) = [1 2 1 2 1 1 2 2 1 1 1 2 1 1 1 1 1 1 1 1, 75,1,12];
+
+
+Storage_Matrix(15,:) = [1 2 2 2 1 1 1 2 1 1 1 1 1 1 1 2 1 1 1 1, 75,1,13];
+
+
+% as used by Lincoln et al. 2010
+
+
+ 
+
+
+Trial_Matrix_rand = Storage_Matrix(randperm(size(Storage_Matrix,1)),:);
+
+
+ 
+
+
+Data.Trial_Matrix_80_20(1,:) = [1 1 1 1 2 1 1 1 1 1 1 1 1 1 1 2 1 1 2 1,85,1,88];
+
+
+% as used by Huq & Garety 1988
+
+
+Data.Trial_Matrix_80_20(2,:) = [2 1 2 2 2 2 1 2 2 2 1 2 1 1 1 1 2 1 1 1,50,1,97];
+
+
+Data.Trial_Matrix_80_20(3,:) = [2 1 2 2 2 1 2 2 1 2 1 2 2 2 2 1 1 2 2 1,70,1,98];
+
+
+Data.Trial_Matrix_80_20(4,:) = [1 2 1 1 1 1 2 1 1 1 2 1 2 2 2 2 1 2 2 2,50,1,99];
+
+
+% as used by Moutoussis et al. 2011
+
+
+for i = 5 : 19;
+
+
+    Data.Trial_Matrix_80_20(i,:) = Trial_Matrix_rand(i-4,:);
+
+
+end
+
+
+clear i Trial_Matrix_rand Storage_Matrix
+
+
+ 
+
+
+%--------------------------------------------------------------------------
+
+
+% Bead sequences for the PEV Version
+
+
+%--------------------------------------------------------------------------
+
+
+for i = 1 : 10;
+
+
+    if i == 1 || i == 2;
+
+
+        x = [2 1 1 1 1];rand_x1=x(randperm(numel(x)));rand_x2=x(randperm(numel(x)));
+
+
+        beadcolour = [rand_x1 rand_x2 0 0 0 0 0 0 0 0 0 0,80,2,0];
+
+
+        Storage_Matrix(i,:) = [beadcolour];
+
+
+        % = 2 Series starting with a chance of 80% green
+
+
+    elseif i == 3 || i == 4;
+
+
+        x = [1 2 2 2 2];rand_x1=x(randperm(numel(x)));rand_x2=x(randperm(numel(x)));
+
+
+        beadcolour = [rand_x1 rand_x2 0 0 0 0 0 0 0 0 0 0,20,2,0];
+
+
+        Storage_Matrix(i,:) = [beadcolour];
+
+
+        % = 2 Series starting with a chance of 20% green
+
+
+    elseif i == 5 || i == 6;
+
+
+        x = [2 2 1 1 1];rand_x1=x(randperm(numel(x)));rand_x2=x(randperm(numel(x)));
+
+
+        beadcolour = [rand_x1 rand_x2 0 0 0 0 0 0 0 0 0 0,60,2,0];
+
+
+        Storage_Matrix(i,:) = [beadcolour];
+
+
+        % = 2 Series starting with a chance of 60% green
+
+
+    elseif i == 7 || i == 8;
+
+
+        x = [1 1 2 2 2];rand_x1=x(randperm(numel(x)));rand_x2=x(randperm(numel(x)));
+
+
+        beadcolour = [rand_x1 rand_x2 0 0 0 0 0 0 0 0 0 0,40,2,0];
+
+
+        Storage_Matrix(i,:) = [beadcolour];
+
+
+        % = 2 Series starting with a chance of 40% green
+
+
+    elseif i > 8;
+
+
+        x = [1 1 1 1 1 2 2 2 2 2];
+
+
+        beadcolour = [x(randperm(numel(x))),0 0 0 0 0 0 0 0 0 0,50,2,0];
+
+
+        % = 2 Series_50_green_50_blue
+
+
+        Storage_Matrix(i,:) = [beadcolour];
+
+
+    end
+
+
+end
+
+
+clear i x beadcolour rand_x1 rand_x2 rand_x3 rand_x4
+
+
+ 
+
+
+Trial_Matrix_rand = Storage_Matrix(randperm(size(Storage_Matrix,1)),:);
+
+
+Data.Trial_Matrix_PEV(1,:) = [1 1 1 1 1 1 2 1 1 2 0 0 0 0 0 0 0 0 0 0, 80,2,88];
+
+
+% as used by Huq and Garety 1988
+
+
+Data.Trial_Matrix_PEV(2,:) = [1 1 1 2 1 1 1 1 2 1 0 0 0 0 0 0 0 0 0 0, 80,2,16];
+
+
+% as used by Rausch et al. 2016
+
+
+for i = 3 : 12;
+
+
+    Data.Trial_Matrix_PEV(i,:) = Trial_Matrix_rand(i-2,:);
+
+
+end
+
+
+clear i %Trial_Matrix_rand Storage_Matrix
+
+
+ 
+
+
+%--------------------------------------------------------------------------
+
+
+% Bead sequences for the D2D 60/40 Version
+
+
+%--------------------------------------------------------------------------
+
+
+for i = 1 : 12;
+
+
+    if i == 1 || i == 2;
+
+
+        x = [2 1 1 1 1];rand_x1=x(randperm(numel(x)));rand_x2=x(randperm(numel(x)));rand_x3=x(randperm(numel(x)));rand_x4=x(randperm(numel(x)));
+
+
+        beadcolour = [rand_x1 rand_x2 rand_x3 rand_x4,80,3,0];
+
+
+        Storage_Matrix(i,:) = [beadcolour];
+
+
+        % = 2 Series starting with a chance of 80% orange
+
+
+    elseif i == 3 || i == 4;
+
+
+        x = [1 2 2 2 2];rand_x1=x(randperm(numel(x)));rand_x2=x(randperm(numel(x)));rand_x3=x(randperm(numel(x)));rand_x4=x(randperm(numel(x)));
+
+
+        beadcolour = [rand_x1 rand_x2 rand_x3 rand_x4,20,3,0];
+
+
+        Storage_Matrix(i,:) = [beadcolour];
+
+
+        % = 2 Series starting with a chance of 20% orange
+
+
+    elseif i == 5 || i == 6;
+
+
+        x = [2 2 1 1 1];rand_x1=x(randperm(numel(x)));rand_x2=x(randperm(numel(x)));rand_x3=x(randperm(numel(x)));rand_x4=x(randperm(numel(x)));
+
+
+        beadcolour = [rand_x1 rand_x2 rand_x3 rand_x4,60,3,0];
+
+
+        Storage_Matrix(i,:) = [beadcolour];
+
+
+        % = 2 Series starting with a chance of 60% orange
+
+
+    elseif i == 7 || i == 8;
+
+
+        x = [1 1 2 2 2];rand_x1=x(randperm(numel(x)));rand_x2=x(randperm(numel(x)));rand_x3=x(randperm(numel(x)));rand_x4=x(randperm(numel(x)));
+
+
+        beadcolour = [rand_x1 rand_x2 rand_x3 rand_x4,40,3,0];
+
+
+        Storage_Matrix(i,:) = [beadcolour];
+
+
+        % = 2 Series starting with a chance of 40% orange
+
+
+    elseif i > 8;
+
+
+        x = [1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2];
+
+
+        beadcolour = [x(randperm(numel(x))),50,3,0];
+
+
+        % = 4 Series_50_orange_50_violet
+
+
+        Storage_Matrix(i,:) = [beadcolour];
+
+
+    end
+
+
+end
+
+
+clear i x beadcolour rand_x1 rand_x2 rand_x3 rand_x4
+
+
+Storage_Matrix(13,:) = [1 1 1 2 1 1 1 2 1 1 2 1 1 1 2 1 1 1 1 1, 80,3,11];
+
+
+Storage_Matrix(14,:) = [1 2 1 2 1 1 2 2 1 1 1 2 1 1 1 1 1 1 1 1, 75,3,12];
+
+
+Storage_Matrix(15,:) = [1 2 2 2 1 1 1 2 1 1 1 1 1 1 1 2 1 1 1 1, 75,3,13];
+
+
+% as used by Lincoln et al. 2010
+
+
+ 
+
+
+Trial_Matrix_rand = Storage_Matrix(randperm(size(Storage_Matrix,1)),:);
+
+
+ 
+
+
+Data.Trial_Matrix_60_40(1,:) = [1 1 1 1 2 1 1 1 1 1 1 1 1 1 1 2 1 1 2 1,85,3,88];
+
+
+% as used by Huq & Garety 1988
+
+
+Data.Trial_Matrix_60_40(2,:) = [2 1 2 2 2 2 1 2 2 2 1 2 1 1 1 1 2 1 1 1,50,3,97];
+
+
+Data.Trial_Matrix_60_40(3,:) = [2 1 2 2 2 1 2 2 1 2 1 2 2 2 2 1 1 2 2 1,70,3,98];
+
+
+Data.Trial_Matrix_60_40(4,:) = [1 2 1 1 1 1 2 1 1 1 2 1 2 2 2 2 1 2 2 2,50,3,99];
+
+
+% as used by Moutoussis et al. 2011
+
+
+for i = 5 : 19;
+
+
+    Data.Trial_Matrix_60_40(i,:) = Trial_Matrix_rand(i-4,:);
+
+
+end
+
+
+clear i Trial_Matrix_rand Storage_Matrix
+
+
+ 
+
+
+% NOTE: colour of the beads corresponds to numbers: 1 = green/orange and 2 = blue/violet.
+
+
+ 
+
+
+ 
+
+
+Data.Whole_Trial_Matrix = [[Data.Trial_Matrix_80_20];[Data.Trial_Matrix_PEV];[Data.Trial_Matrix_60_40]];
+
+
+ 
+
+
+save(datafile, 'Data');
+
+
+ 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+ 
+
+
+%-----------------------------------------------------------------------------
+
+
+%-----------------------------------------------------------------------------
+
+
+%                   D2D 80/20 Version follows from here
+
+
+%-----------------------------------------------------------------------------
+
+
+%-----------------------------------------------------------------------------
+
+
+ 
+
+
+    function draw_boxes_80(x1,x2,y1,y2)
+
+
+        cgpencol(0.05859375,0.65234375,0.07421875); % new green
+
+
+        cgrect(x1,y1,160,400);
+
+
+        cgpencol(0.04296875,0.41796875,0.97265625); % new blue
+
+
+        cgrect(x1,y2,160,80);
+
+
+        cgpencol(0.04296875,0.41796875,0.97265625);
+
+
+        cgrect(x2,y1,160,400);
+
+
+        cgpencol(0.05859375,0.65234375,0.07421875);
+
+
+        cgrect(x2,y2,160,80);
+
+
+        cgpencol(1,1,1);
+
+
+        cgfont('Calibri', 40);
+
+
+        cgtext('80%',-260,-100);
+
+
+        cgtext('Green',-260,-140);
+
+
+        cgtext('80%',260,-100);
+
+
+        cgtext('Blue',260,-140);
+
+
+        return
+
+
+    end
+
+
+ 
+
+
+    function D2D_decision_screen
+
+
+        %---------------------------------
+
+
+        draw_boxes_80(-260,260,-140,-300)
+
+
+        %---------------------------------
+
+
+        cgpencol(1,1,1);
+
+
+        cgfont('Calibri', 40);
+
+
+        cgtext('Please decide: From which of the two boxes do you think the beads were drawn?',0,180);
+
+
+        cgpencol(1,1,1);
+
+
+        cgfont('Calibri', 30);
+
+
+        cgtext('Press ARROW LEFT for the 80% GREEN BOX',-280,-420);
+
+
+        cgtext('Press ARROW RIGHT for the 80% BLUE BOX',280,-420);
+
+
+        return
+
+
+    end
+
+
+ 
+
+
+ 
+
+
+if part == 1;
+
+
+    
+
+
+    counter_correct_decision = 0;
+
+
+    
+
+
+    for trial = 0:19;
+
+
+        
+
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+        % define locations and colour series of the beads
+
+
+        x_location =   [-400 -350 -400 -350;
+
+
+            -200 -150 -200 -150;
+
+
+            0   50    0   50;
+
+
+            200  250  200  250;
+
+
+            400  450  400  450];
+
+
+        
+
+
+        y_location =    [350  170  -10 -190;
+
+
+            350  170  -10 -190;
+
+
+            350  170  -10 -190;
+
+
+            350  170  -10 -190;
+
+
+            350  170  -10 -190];
+
+
+        % predefines the x- and y-axis locations for all beads
+
+
+        
+
+
+        readkeys;
+
+
+        responsekey = [59 71 44];
+
+
+        % defines SPACEBAR and "arrow up" as response-keys for the D2D Version
+
+
+        % and defines "F8" as possible termination key
+
+
+        choicekey = [97 98];
+
+
+        % % defines only 97 - ARROW LEFT, 98 - ARROW RIGHT as choice-keys for the D2D Version
+
+
+        
+
+
+        if trial == 0
+
+
+            Beadstask_instructions_D2D_80_keyboard
+
+
+            % plays through the instructions and two example tasks of the D2D
+
+
+            % version
+
+
+            %-------------------------------------------------------------------------------
+
+
+            Data.when_stop_tutorial_D2D_80_20 =   datestr([now],0);   % log stop of tutorial
+
+
+            logstring(sprintf('end_D2D_80_20_tutorial: %0.5g', Data.when_stop_tutorial_D2D_80_20));
+
+
+            save(datafile, 'Data');
+
+
+            
+
+
+            trial = 1;
+
+
+        end
+
+
+        if trial > 0 && trial < 20;
+
+
+            beadcolour = Data.Whole_Trial_Matrix(trial,[1:20]);
+
+
+        end
+
+
+        
+
+
+        
+
+
+        turn = 1;
+
+
+        % sets up the starting point of the turns
+
+
+        baseline__D2D = time;
+
+
+        % records baseline time
+
+
+        Data.baseline__D2D(trial,1) =  baseline__D2D;
+
+
+        save(datafile,'Data');
+
+
+        
+
+
+        cgflip(0,0,0);
+
+
+        % draws blank screen before the for loop - reduces the flicker rate
+
+
+        % between turns
+
+
+        
+
+
+        for turn = 1:20;
+
+
+            clearkeys;
+
+
+            if turn > 1;
+
+
+                waituntil(time+500);
+
+
+            end
+
+
+            for subturn = 1:turn;
+
+
+                beadcolour_subturn = beadcolour(subturn);
+
+
+                if beadcolour_subturn == 1;
+
+
+                    cgpencol(0.05859375,0.65234375,0.07421875);  % light green bead
+
+
+                elseif beadcolour_subturn == 2;
+
+
+                    cgpencol(0.04296875,0.41796875,0.97265625);  % light blue bead
+
+
+                end
+
+
+                cgellipse(x_location(subturn), y_location(subturn),90,90,'f');
+
+
+            end
+
+
+            cgpencol(1,1,1);
+
+
+            cgfont('Calibri', 30);
+
+
+            cgtext('Pressing SPACEBAR = I want one more bead.                 Pressing ENTER = I want to decide',0,-325);
+
+
+            cgflip(0,0,0);
+
+
+            
+
+
+            if turn == 1;
+
+
+                Data.first_stimulus_trial(trial,1) = time;
+
+
+            elseif turn > 1;
+
+
+                Data.first_stimulus_trial(trial,turn) = 0;
+
+
+            end
+
+
+            bead_stimulus_raw = time;
+
+
+            bead_stimulus = time - baseline__D2D;
+
+
+            % records the timing of each bead stimulus presentation
+
+
+            
+
+
+            check = 0;
+
+
+            while check == 0;
+
+
+                waitkeydown(inf);
+
+
+                [key, t, kn] = getkeydown(inf, responsekey);
+
+
+                
+
+
+                if key == 71;
+
+
+                    sprintf('sample')
+
+
+                    check = 1;
+
+
+                    beadresponse = 0;
+
+
+                    draws_to_decision = turn;
+
+
+                    %rt_beadresponse = ktime(1) - bead_stimulus_raw;
+
+
+                elseif key == 59;
+
+
+                    sprintf('decision')
+
+
+                    check = 1;
+
+
+                    beadresponse = 1;
+
+
+                    draws_to_decision = turn;
+
+
+                    %rt_beadresponse = ktime(1) - bead_stimulus_raw;
+
+
+                else
+
+
+                    clearkeys
+
+
+                    check = 0;
+
+
+                end
+
+
+            end
+
+
+            
+
+
+            if key == 71 && beadresponse == 0;
+
+
+                %-----------------------------------------------------------------------------------------
+
+
+                Data.trial(trial,1)                 =   trial;
+
+
+                Data.turn(trial,turn)               =   turn;
+
+
+                Data.bead_stimulus_raw(trial,turn)  =   bead_stimulus_raw;
+
+
+                Data.bead_stimulus(trial,turn)      =   bead_stimulus;
+
+
+                Data.ktime(trial,turn)              =   t;
+
+
+                Data.rt_relative_to_first_turn(trial,turn)  =   Data.ktime(trial,turn) - Data.first_stimulus_trial(trial,1);
+
+
+                % gives reaction time relative to first turn
+
+
+                
+
+
+                save(datafile,'Data');
+
+
+                clearkeys;
+
+
+                %-----------------------------------------------------------------------------------------
+
+
+                turn = turn + 1;
+
+
+                
+
+
+            elseif key == 59 && turn == 1;
+
+
+                
+
+
+                Data.trial(trial,1)                 =   trial;
+
+
+                Data.turn(trial,turn)               =   turn;
+
+
+                Data.bead_stimulus_raw(trial,turn)  =   bead_stimulus_raw;
+
+
+                Data.bead_stimulus(trial,1)         =   bead_stimulus;
+
+
+                Data.ktime(trial,turn)              =   t;
+
+
+                Data.draws_to_decision(trial,1)     =   draws_to_decision;
+
+
+                Data.rt_relative_to_first_turn(trial,turn)  =   Data.ktime(trial,turn) - Data.first_stimulus_trial(trial,1);
+
+
+                % gives reaction time relative to first turn
+
+
+                
+
+
+                save(datafile,'Data');
+
+
+                
+
+
+                turn = 21;
+
+
+                
+
+
+                Data.turn(trial,turn)               =   turn;
+
+
+                Data.bead_stimulus_raw(trial,turn)  =   bead_stimulus_raw;
+
+
+                Data.bead_stimulus(trial,1)         =   bead_stimulus;
+
+
+                Data.ktime(trial,turn)              =   t;
+
+
+                Data.draws_to_decision(trial,1)     =   draws_to_decision;
+
+
+                Data.rt_relative_to_first_turn(trial,turn)  =   Data.ktime(trial,turn) - Data.first_stimulus_trial(trial,1);
+
+
+                % gives reaction time relative to first turn
+
+
+                
+
+
+                save(datafile,'Data');
+
+
+                clearkeys;
+
+
+                
+
+
+            elseif key == 59 && turn > 1;
+
+
+                
+
+
+                Data.turn(trial,turn)               =   turn;
+
+
+                Data.bead_stimulus_raw(trial,turn)  =   bead_stimulus_raw;
+
+
+                Data.bead_stimulus(trial,1)         =   bead_stimulus;
+
+
+                Data.ktime(trial,turn)              =   t;
+
+
+                Data.draws_to_decision(trial,1)     =   draws_to_decision;
+
+
+                Data.rt_relative_to_first_turn(trial,turn)  =   Data.ktime(trial,turn) - Data.first_stimulus_trial(trial,1);
+
+
+                % gives reaction time relative to first turn
+
+
+                
+
+
+                turn = 21;
+
+
+                
+
+
+                Data.turn(trial,turn)               =   turn;
+
+
+                Data.bead_stimulus_raw(trial,turn)  =   bead_stimulus_raw;
+
+
+                Data.bead_stimulus(trial,1)         =   bead_stimulus;
+
+
+                Data.ktime(trial,turn)              =   t;
+
+
+                Data.draws_to_decision(trial,1)     =   draws_to_decision;
+
+
+                Data.rt_relative_to_first_turn(trial,turn)  =   Data.ktime(trial,turn) - Data.first_stimulus_trial(trial,1);
+
+
+                % gives reaction time relative to first turn
+
+
+                
+
+
+                save(datafile,'Data');
+
+
+                clearkeys;
+
+
+                
+
+
+            end
+
+
+            
+
+
+            if turn == 21
+
+
+                break
+
+
+            end
+
+
+            
+
+
+        end
+
+
+        
+
+
+        if turn == 21 && beadresponse == 0;
+
+
+            Data.draws_to_decision(trial,1)= 20;
+
+
+            save(datafile,'Data');
+
+
+        end
+
+
+        
+
+
+        if turn == 21;
+
+
+            
+
+
+            clearkeys;
+
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+            cgflip(0,0,0);
+
+
+            D2D_decision_screen
+
+
+            cgflip(0,0,0);
+
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+            % displays the D2D task decision making screen
+
+
+            time_decision_box = time;
+
+
+            
+
+
+            check = 0;
+
+
+            while check == 0;
+
+
+                
+
+
+                waitkeydown(inf);
+
+
+                [key, t, kn] = getkeydown(inf, responsekey);
+
+
+                
+
+
+                if key == 97; %key == 97;     % if ARROW LEFT is pressed
+
+
+                    sprintf('left - green')
+
+
+                    choicekey = 97;
+
+
+                    decision_box = 1;
+
+
+                    check = 1;
+
+
+                    ktime_box = t;
+
+
+                    %rt_decision_box = ktime - time_decision_box;
+
+
+                elseif key == 98;
+
+
+                    sprintf('right - blue')
+
+
+                    decision_box = 2;
+
+
+                    choicekey = 98;
+
+
+                    check = 1;
+
+
+                    ktime_box = t;
+
+
+                    %rt_decision_box = ktime - time_decision_box;
+
+
+                else
+
+
+                    clearkeys;
+
+
+                    check = 0;
+
+
+                end
+
+
+            end
+
+
+        end
+
+
+        
+
+
+        
+
+
+        
+
+
+        a = numel(find(Data.Whole_Trial_Matrix(trial,1:20) > 1.1));
+
+
+        b = numel(find(Data.Whole_Trial_Matrix(trial,1:20) < 1.1));
+
+
+        
+
+
+        if a > 10 && b < 10;       % if more "2"s than "1"s are included in the sequence
+
+
+            correct_box = 2;
+
+
+        elseif a < 10 && b > 10;   % if more "1"s than "2"s are included in the sequence
+
+
+            correct_box = 1;
+
+
+        elseif a == b;             % if both colours are equally likely
+
+
+            correct_box = 99;
+
+
+        end
+
+
+        
+
+
+        if decision_box ~= correct_box && correct_box ~= 99;
+
+
+            sprintf('wrong decision')
+
+
+            counter_correct_decision = counter_correct_decision;
+
+
+        elseif decision_box == correct_box;
+
+
+            sprintf('correct decision')
+
+
+            counter_correct_decision = counter_correct_decision + 1;
+
+
+        elseif decision_box == 1 && correct_box == 99 || decision_box == 2 && correct_box == 99;
+
+
+            sprintf('no decision possible \n 50-50 distribution')
+
+
+            counter_correct_decision = counter_correct_decision;
+
+
+        end
+
+
+        
+
+
+        %------------------------------------------------------------------------------------------------
+
+
+        Data.trial(trial,1)                     =   trial;
+
+
+        Data.turn(trial,turn)                   =   turn;
+
+
+        Data.bead_stimulus(trial,turn)          =   bead_stimulus;
+
+
+        Data.time_decision_box(trial,1)         =   time_decision_box;
+
+
+        Data.decision_box(trial,1)              =   decision_box;
+
+
+        Data.ktime_box(trial,1)                 =   ktime_box;
+
+
+        %Data.rt_decision_box(trial,1)           =   rt_decision_box;
+
+
+        Data.correct_box(trial,1)               =   correct_box;
+
+
+        Data.counter_correct_decision(trial,1)  =   counter_correct_decision;
+
+
+        Data.decision_time_rel_to_first_turn(trial,1)  =   Data.ktime_box(trial,1) - Data.first_stimulus_trial(trial,1);
+
+
+        % gives decision time relative to first turn
+
+
+        
+
+
+        save(datafile,'Data');
+
+
+        clear time_parallel key_parallel ktime_box key kn beadcolour turn subturn beadcolour_subturn
+
+
+        %------------------------------------------------------------------------------------------------
+
+
+        cgflip(0,0,0);
+
+
+        waituntil(time+500);
+
+
+        
+
+
+        trial = trial +1;
+
+
+        
+
+
+    end
+
+
+    if trial == 20;
+
+
+        
+
+
+        %----------------------------------------------------------------------
+
+
+        Data.when_stop_D2D_80_20_trials =   datestr([now],0);   % log stop of tutorial
+
+
+        
+
+
+        part = 2;
+
+
+        
+
+
+    end
+
+
+end
+
+
+ 
+
+
+ 
+
+
+ 
+
+
+ 
+
+
+%-----------------------------------------------------------------------------
+
+
+%-----------------------------------------------------------------------------
+
+
+%                   PEV Version follows from here
+
+
+%-----------------------------------------------------------------------------
+
+
+%-----------------------------------------------------------------------------
+
+
+% fist the subfunctions needed to draw the PEV rating scale get defined
+
+
+%--------------------------------------------------------------------------
+
+
+%--------------------------------------------------------------------------
+
+
+ 
+
+
+    function draw_scale(x1,x7,y1,y2,y3)
+
+
+        x2=x1+117;
+
+
+        x3=x1+273;
+
+
+        x4=x1+390;
+
+
+        x5=x1+507;
+
+
+        x6=x1+663;
+
+
+        
+
+
+        cgpencol(0.05859375,0.65234375,0.07421875);
+
+
+        a = [ 0 x1 x1];
+
+
+        b = [y1 y2-5 y3+5];
+
+
+        cgpolygon(a,b)
+
+
+        cgpencol(0.04296875,0.41796875,0.97265625);
+
+
+        c = [ 0 x7 x7];
+
+
+        d = [y1 y2-5 y3+5];
+
+
+        cgpolygon(c,d)
+
+
+        % draws a green and a blue wedge into the scale
+
+
+        cgpencol(1,1,1);
+
+
+        cgpenwid(2);
+
+
+        cgdraw(x1,y1,x7,y1);
+
+
+        cgpenwid(2);
+
+
+        cgdraw(x1,y2,x1,y3);
+
+
+        cgdraw(x2,y2,x2,y3);
+
+
+        cgdraw(x3,y2,x3,y3);
+
+
+        cgdraw(x4,y2,x4,y3);
+
+
+        cgdraw(x5,y2,x5,y3);
+
+
+        cgdraw(x6,y2,x6,y3);
+
+
+        cgdraw(x7,y2,x7,y3);
+
+
+        % adds main partition lines to the scale
+
+
+        c = 39;
+
+
+        for iteration = 1:19;
+
+
+            cgpencol(1,1,1);
+
+
+            cgpenwid(1);
+
+
+            cgdraw(x1+c,y2-15,x1+c,y3+15);
+
+
+            c = c+39;
+
+
+        end
+
+
+        % adds additional partition lines to the scale
+
+
+        
+
+
+        cgpencol(1,1,1);
+
+
+        cgfont('Calibri', 35);
+
+
+        cgtext('100%',x1,y2+25)
+
+
+        cgtext('70%',x2,y2+25)
+
+
+        cgtext('30%',x3,y2+25)
+
+
+        cgtext('0%',x4,y2+25)
+
+
+        cgtext('30%',x5,y2+25)
+
+
+        cgtext('70%',x6,y2+25)
+
+
+        cgtext('100%',x7,y2+25)
+
+
+        % draws percentage rates above the scale
+
+
+        cgpencol(1,1,1);
+
+
+        cgfont('Calibri', 30);
+
+
+        cgtext('definitely',x1,y3-25)
+
+
+        cgtext('green',x1,y3-60)
+
+
+        cgtext('very likely',x2,y3-25)
+
+
+        cgtext('green',x2,y3-60)
+
+
+        cgtext('probably',x3,y3-25)
+
+
+        cgtext('green',x3,y3-60)
+
+
+        cgtext(' I''m ',x4,y3-25)
+
+
+        cgtext('uncertain',x4,y3-60)
+
+
+        cgtext('probably',x5,y3-25)
+
+
+        cgtext('blue',x5,y3-60)
+
+
+        cgtext('very likely',x6,y3-25)
+
+
+        cgtext('blue',x6,y3-60)
+
+
+        cgtext('definitely',x7,y3-25)
+
+
+        cgtext('blue',x7,y3-60)
+
+
+        % draws text-descriptions underneath the scale
+
+
+        %cgpencol(0.05859375,0.65234375,0.07421875);
+
+
+        cgpencol(0.05859375,0.65234375,0.07421875);
+
+
+        cgrect(x1-130,-280,100,160);
+
+
+        %cgpencol(0.04296875,0.41796875,0.97265625);
+
+
+        cgpencol(0.04296875,0.41796875,0.97265625); % new blue
+
+
+        cgrect(x1-130,-380,100,40);
+
+
+        % creates a largely green box
+
+
+        cgpencol(0.04296875,0.41796875,0.97265625);
+
+
+        cgrect(x7+130,-280,100,160);
+
+
+        cgpencol(0.05859375,0.65234375,0.07421875);
+
+
+        cgrect(x7+130,-380,100,40);
+
+
+        % creates a largely blue box
+
+
+        % depicts both boxes again for the participants to reduce working-memory load
+
+
+        cgpencol(1,1,1);
+
+
+        cgfont('Calibri', 40);
+
+
+        cgtext('From which of the two boxes do you think the beads were drawn?',0,-150)
+
+
+        cgpenwid(4)
+
+
+        cgdraw(-600,-100,600,-100)
+
+
+        
+
+
+        return
+
+
+    end
+
+
+%--------------------------------------------------------------------------
+
+
+    function draw_rating_cursor(x)
+
+
+        cgpencol(0,0,0);
+
+
+        cgrect(x,-300,10,70)
+
+
+        cgpencol(1,1,0);
+
+
+        cgrect(x,-300,8,68)
+
+
+        return
+
+
+    end
+
+
+%--------------------------------------------------------------------------
+
+
+    function drawbead_PEV(turn, beadcolour, x_location, y_location)
+
+
+        
+
+
+        if turn < 11;
+
+
+            for subturn = 1:turn;
+
+
+                beadcolour_subturn = beadcolour(subturn);
+
+
+                if beadcolour_subturn == 1;
+
+
+                    cgpencol(0.05859375,0.65234375,0.07421875);  % light green bead
+
+
+                elseif beadcolour_subturn == 2;
+
+
+                    cgpencol(0.04296875,0.41796875,0.97265625);  % light blue bead
+
+
+                end
+
+
+                cgellipse(x_location(subturn), y_location(subturn),90,90,'f');
+
+
+            end
+
+
+        end
+
+
+        return
+
+
+    end
+
+
+%--------------------------------------------------------------------------
+
+
+    function PEV_decision_screen
+
+
+        cgpencol(1,1,1);
+
+
+        cgfont('Calibri', 40);
+
+
+        cgtext('Did you receive enough information to decide',0,300);
+
+
+        cgtext('which of the two jars was selected for this trial?',0,250);
+
+
+        cgtext('Please press ARROW LEFT for "YES - enough information"',0,200);
+
+
+        cgtext('and ARROW RIGHT for "NO - not enough information":',0,150);
+
+
+        cgfont('Calibri', 130);
+
+
+        cgtext('YES',-280,-150);
+
+
+        cgtext('NO',280,-150);
+
+
+        cgtext('!',-280,0);
+
+
+        cgtext('?',280,0);
+
+
+        cgfont('Calibri', 30);
+
+
+        cgtext('Press ARROW LEFT',-280,-420);
+
+
+        cgtext('Press ARROW RIGHT',280,-420);
+
+
+        return
+
+
+    end
+
+
+%--------------------------------------------------------------------------
+
+
+ 
+
+
+if part == 2;
+
+
+    
+
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+    Beadstask_instructions_PEV_scale_keyboard
+
+
+    % runs a couple of instruction screens and an example trial
+
+
+    % to familiarise the participants with the experiment
+
+
+    %------------------------------------------------------------------------
+
+
+    Data.when_stop_tutorial_PEV =   datestr([now],0);   % log stop of tutorial
+
+
+    logstring(sprintf('end_PEV_tutorial: %0.5g', Data.when_stop_tutorial_PEV));
+
+
+    save(datafile, 'Data');
+
+
+    
+
+
+    trial = 20;
+
+
+    
+
+
+    clear counter_correct_decision
+
+
+    counter_correct_decision = 0;
+
+
+    
+
+
+    for trial = 20:31;
+
+
+        x = 0;
+
+
+        % sets up the rating cursor in the middle for each new trial
+
+
+        
+
+
+        % define locations and colour series of the beads
+
+
+        x_location =   [-400 -350 -400 -350;
+
+
+            -200 -150 -200 -150;
+
+
+            0   50    0   50;
+
+
+            200  250  200  250;
+
+
+            400  450  400  450];
+
+
+        
+
+
+        y_location =    [350  170  -10 -190;
+
+
+            350  170  -10 -190;
+
+
+            350  170  -10 -190;
+
+
+            350  170  -10 -190;
+
+
+            350  170  -10 -190];
+
+
+        % predefines the x- and y-axis locations for all 10 beads
+
+
+        %--------------------------------------------------------------------------
+
+
+        
+
+
+        if trial > 19 && trial < 32;
+
+
+            beadcolour = Data.Whole_Trial_Matrix(trial,[1:10]);
+
+
+        end
+
+
+        
+
+
+        baseline_PEV = time;
+
+
+        Data.baseline_PEV(trial,1) =  baseline_PEV;
+
+
+        save(datafile,'Data');
+
+
+        
+
+
+        for turn = 1:10;
+
+
+            
+
+
+            clearkeys;
+
+
+            draw_scale(-390,390,-300,-270,-330);
+
+
+            draw_rating_cursor(x);
+
+
+            drawbead_PEV(turn, beadcolour, x_location, y_location);
+
+
+            cgflip(0,0,0);
+
+
+            
+
+
+            rating = 0;
+
+
+            enter = 0;
+
+
+            keypress = 0;
+
+
+            while enter < 1;
+
+
+                keypress = 0;
+
+
+                draw_scale(-390,390,-300,-270,-330);
+
+
+                drawbead_PEV(turn, beadcolour, x_location, y_location);
+
+
+                draw_rating_cursor(x);
+
+
+                cgflip(0,0,0);
+
+
+                time_stimulus = time;
+
+
+                
+
+
+                waitkeydown(inf);
+
+
+                [key, t, kn] = getkeydown(inf, responsekey);
+
+
+                
+
+
+                if key == 97 && x>-390;          % left arrow
+
+
+                    x = x-39;                    % moves cursor in 10% steps, set to "9.75" for 2.5 percent steps;
+
+
+                    keypress = 1;
+
+
+                elseif key == 98 && x<390;       % right arrow
+
+
+                    x= x+39;
+
+
+                    keypress = 2;
+
+
+                elseif key == 59;                % rating-key
+
+
+                    enter = 1;%%
+
+
+                    rating = 1;
+
+
+                    threshold = x/3.9;
+
+
+                    ktime_PEV_raw = t;
+
+
+                else
+
+
+                    x = x;
+
+
+                    keypress = 0;
+
+
+                    clearkeys;
+
+
+                end
+
+
+                draw_scale(-390,390,-300,-270,-330);
+
+
+                drawbead_PEV(turn, beadcolour, x_location, y_location);
+
+
+                if x < -390
+
+
+                    draw_rating_cursor(-390);
+
+
+                    x = -390;
+
+
+                elseif x > 390
+
+
+                    draw_rating_cursor(390);
+
+
+                    x = 390;
+
+
+                else
+
+
+                    draw_rating_cursor(x);
+
+
+                end
+
+
+                cgflip(0,0,0);
+
+
+                clearkeys;
+
+
+                
+
+
+            end
+
+
+            
+
+
+            if rating == 1;
+
+
+                position_cursor = x;
+
+
+                if position_cursor < 0;
+
+
+                    decision_box = 1;
+
+
+                elseif position_cursor > 0;
+
+
+                    decision_box = 2;
+
+
+                elseif position_cursor == 0;
+
+
+                    decision_box = 0;
+
+
+                end
+
+
+                
+
+
+                %--------------------------------------------------------------------------------
+
+
+                
+
+
+                a = numel(find(Data.Whole_Trial_Matrix(trial,1:10) > 1.1));
+
+
+                b = numel(find(Data.Whole_Trial_Matrix(trial,1:10) < 1.1));
+
+
+                
+
+
+                if a > 5 && b < 5;      % if more "2"s than "1"s are included in the sequence
+
+
+                    correct_box = 2;
+
+
+                elseif a < 5 && b > 5;  % if more "1"s than "2"s are included in the sequence
+
+
+                    correct_box = 1;
+
+
+                elseif a == b;          % if both colours are equally likely
+
+
+                    correct_box = 99;
+
+
+                end
+
+
+                
+
+
+                if decision_box ~= correct_box && correct_box ~= 99;
+
+
+                    sprintf('wrong decision')
+
+
+                    counter_correct_decision = counter_correct_decision;
+
+
+                elseif decision_box == correct_box;
+
+
+                    sprintf('correct decision')
+
+
+                    counter_correct_decision = counter_correct_decision + 1;
+
+
+                elseif decision_box == 1 && correct_box == 99 || decision_box == 2 && correct_box == 99;
+
+
+                    sprintf('no decision possible \n 50-50 distribution')
+
+
+                    counter_correct_decision = counter_correct_decision;
+
+
+                end
+
+
+                
+
+
+                %------------------------------------------------------------------------------------------------
+
+
+                
+
+
+                Data.trial(trial,1)                     =   trial;
+
+
+                Data.turn(trial,turn)                   =   turn;
+
+
+                Data.ktime_PEV_raw(trial,turn)          =   ktime_PEV_raw;
+
+
+                Data.position_cursor(trial,turn)        =   position_cursor;
+
+
+                Data.PEV_threshold(trial,turn)          =   threshold;
+
+
+                
+
+
+                Data.decision_box(trial,1)              =   decision_box;
+
+
+                Data.correct_box(trial,1)               =   correct_box;
+
+
+                Data.counter_correct_decision(trial,1)  =   counter_correct_decision;
+
+
+                %Data.decision_time_rel_to_first_turn(trial,1)  =   Data.ktime_box(trial,1) - Data.first_stimulus_trial(trial,1);
+
+
+                % gives decision time relative to first turn
+
+
+                
+
+
+                save(datafile,'Data');
+
+
+                %--------------------------------------------------------------------------------
+
+
+                
+
+
+                turn = turn + 1;
+
+
+                clearkeys;
+
+
+                clear ktime_PEV_raw key_parallel time_parallel ktime(1) key kn rt_rating
+
+
+                enter = 1;
+
+
+                keypress = 0;
+
+
+                rating = 0;
+
+
+                
+
+
+            end
+
+
+            
+
+
+            
+
+
+        end
+
+
+        
+
+
+        if turn == 11;
+
+
+            clearkeys;
+
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+            PEV_decision_screen
+
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+            cgflip(0,0,0)
+
+
+            check = 0;
+
+
+            while check == 0;
+
+
+                
+
+
+                waitkeydown(inf);
+
+
+                [key, t, kn] = getkeydown(inf, choicekey);
+
+
+                
+
+
+                if key == 97; % ARROW LEFT IS PRESSED
+
+
+                    sprintf('YES')
+
+
+                    choicekey = 97;
+
+
+                    check = 1;
+
+
+                    decision_yes = 1;
+
+
+                    Data.decision_yes(trial,1) = decision_yes;
+
+
+                    save(datafile,'Data');
+
+
+                    break
+
+
+                elseif key == 98; % ARROW RIGHT IS PRESSED
+
+
+                    sprintf('NO')
+
+
+                    choicekey = 98;
+
+
+                    check = 1;
+
+
+                    decision_yes = 0;
+
+
+                    Data.decision_yes(trial,1) = decision_yes;
+
+
+                    save(datafile,'Data');
+
+
+                    break
+
+
+                else
+
+
+                    clearkeys;
+
+
+                    check = 0;
+
+
+                end
+
+
+                
+
+
+            end
+
+
+        end
+
+
+        
+
+
+        
+
+
+        
+
+
+        if trial == 31;
+
+
+            cgflip(0,0,0);
+
+
+            cgpencol(1,1,1);
+
+
+            cgfont('Calibri', 40);
+
+
+            cgtext('This was the last trial - Please press SPACEBAR to end',0,-300);
+
+
+            %--------------------------------------------------------------------
+
+
+            Data.when_stop_PEV_trials =   datestr([now],0);   % log stop of tutorial
+
+
+            for i = 1:31
+
+
+                Data.PEV_rt_rating(i,1:10) = Data.ktime_PEV_raw(i,1:10) - Data.baseline_PEV(i,1);
+
+
+            end
+
+
+            clear i
+
+
+            % Note: if the rt_times are calculated earlier, there miscalculations, when
+
+
+            % subjects press really fast.
+
+
+            save(datafile, 'Data');
+
+
+            
+
+
+            part = 3;
+
+
+            cgflip(0,0,0);
+
+
+            waitkeydown(inf, 71);
+
+
+        end
+
+
+        
+
+
+        trial = trial +1;
+
+
+        
+
+
+        % clear beadcolour turn subturn beadcolour_subturn
+
+
+        % this line of code is not necessary
+
+
+    end
+
+
+end
+
+
+ 
+
+
+%-----------------------------------------------------------------------------
+
+
+%-----------------------------------------------------------------------------
+
+
+%                   D2D 60/20 Version follows from here
+
+
+%-----------------------------------------------------------------------------
+
+
+%-----------------------------------------------------------------------------
+
+
+% the following subfunctions are necessary for the changes in this version
+
+
+%--------------------------------------------------------------------------
+
+
+ 
+
+
+    function draw_boxes_60_40(x1,x2,y1,y2)
+
+
+        cgpencol(0.9765625,0.390625,0.0390625); % orange
+
+
+        cgrect(x1,y1,160,400);
+
+
+        cgpencol(0.4921875,0.2109375,0.703125); % violet
+
+
+        cgrect(x1,y2,160,160);
+
+
+        cgpencol(0.4921875,0.2109375,0.703125);
+
+
+        cgrect(x2,y1,160,400);
+
+
+        cgpencol(0.9765625,0.390625,0.0390625);
+
+
+        cgrect(x2,y2,160,160);
+
+
+        cgpencol(1,1,1);
+
+
+        cgfont('Calibri', 40);
+
+
+        cgtext('60%',-260,-100);
+
+
+        cgtext('ORANGE',-260,-140);
+
+
+        cgtext('60%',260,-100);
+
+
+        cgtext('VIOLET',260,-140);
+
+
+        return
+
+
+    end
+
+
+ 
+
+
+% function to repetively draw the boxes
+
+
+%--------------------------------------------------------------------------
+
+
+    function D2D_decision_screen_60_40
+
+
+        %---------------------------------
+
+
+        draw_boxes_60_40(-260,260,-140,-300)
+
+
+        %---------------------------------
+
+
+        cgpencol(1,1,1);
+
+
+        cgfont('Calibri', 40);
+
+
+        cgtext('Please decide: From which of the two boxes do you think the beads were drawn?',0,180);
+
+
+        cgpencol(1,1,1);
+
+
+        cgfont('Calibri', 30);
+
+
+        cgtext('For the ORANGE box press ARROW LEFT',-250,-420)
+
+
+        cgtext('For the VIOLET box press ARROW RIGHT',250,-420)
+
+
+        return
+
+
+    end
+
+
+%--------------------------------------------------------------------------
+
+
+ 
+
+
+if part == 3;
+
+
+    
+
+
+    Beadstask_instructions_D2D_60_keyboard
+
+
+    % plays through the instructions and two example tasks of the D2D
+
+
+    % version
+
+
+    %--------------------------------------------------------------------------
+
+
+    Data.when_stop_tutorial_D2D_60_40 =   datestr([now],0);   % log stop of tutorial
+
+
+    logstring(sprintf('end_D2D_60_40_tutorial: %0.5g', Data.when_stop_tutorial_D2D_60_40));
+
+
+    save(datafile, 'Data');
+
+
+    
+
+
+    trial = 32;
+
+
+    
+
+
+    Data.first_stimulus_trial(16:27,1:20) = 0;
+
+
+    
+
+
+    clear counter_correct_decision
+
+
+    counter_correct_decision = 0;
+
+
+    
+
+
+    for trial = 32:50;
+
+
+        
+
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+        % define locations and colour series of the beads
+
+
+        x_location =   [-400 -350 -400 -350;
+
+
+            -200 -150 -200 -150;
+
+
+            0   50    0   50;
+
+
+            200  250  200  250;
+
+
+            400  450  400  450];
+
+
+        
+
+
+        y_location =    [350  170  -10 -190;
+
+
+            350  170  -10 -190;
+
+
+            350  170  -10 -190;
+
+
+            350  170  -10 -190;
+
+
+            350  170  -10 -190];
+
+
+        % predefines the x- and y-axis locations for all beads
+
+
+        
+
+
+        readkeys;
+
+
+        responsekey = [95 71 44];
+
+
+        % defines SPACEBAR and "arrow up" as response-keys for the D2D Version
+
+
+        % and defines "F8" as possible termination key
+
+
+        choicekey = [97 98];
+
+
+        % % defines only 97 - ARROW LEFT, 98 - ARROW RIGHT as choice-keys for the D2D Version
+
+
+        
+
+
+        if trial > 31 && trial < 51;
+
+
+            beadcolour = Data.Whole_Trial_Matrix(trial,[1:20]);
+
+
+        end
+
+
+        
+
+
+        
+
+
+        turn = 1;
+
+
+        % sets up the starting point of the turns
+
+
+        baseline__D2D = time;
+
+
+        % records baseline time
+
+
+        Data.baseline__D2D(trial,1) =  baseline__D2D;
+
+
+        save(datafile,'Data');
+
+
+        
+
+
+        cgflip(0,0,0);
+
+
+        % draws blank screen before the for loop - reduces the flicker rate
+
+
+        % between turns
+
+
+        
+
+
+        for turn = 1:20;
+
+
+            clearkeys;
+
+
+            if turn > 1;
+
+
+                waituntil(time+500);
+
+
+            end
+
+
+            for subturn = 1:turn;
+
+
+                beadcolour_subturn = beadcolour(subturn);
+
+
+                if beadcolour_subturn == 1;
+
+
+                    cgpencol(0.9765625,0.390625,0.0390625);  % ORANGE bead
+
+
+                elseif beadcolour_subturn == 2;
+
+
+                    cgpencol(0.4921875,0.2109375,0.703125);  % VIOLET bead
+
+
+                end
+
+
+                cgellipse(x_location(subturn), y_location(subturn),90,90,'f');
+
+
+            end
+
+
+            cgpencol(1,1,1);
+
+
+            cgfont('Calibri', 30);
+
+
+            cgtext('Pressing SPACEBAR = I want one more bead.                 Pressing ENTER = I want to decide',0,-325);
+
+
+            cgflip(0,0,0);
+
+
+            
+
+
+            if turn == 1;
+
+
+                Data.first_stimulus_trial(trial,1) = time;
+
+
+            elseif turn > 1;
+
+
+                Data.first_stimulus_trial(trial,turn) = 0;
+
+
+            end
+
+
+            bead_stimulus_raw = time;
+
+
+            bead_stimulus = time - baseline__D2D;
+
+
+            % records the timing of each bead stimulus presentation
+
+
+            
+
+
+            check = 0;
+
+
+            while check == 0;
+
+
+                waitkeydown(inf);
+
+
+                [key, t, kn] = getkeydown(inf, responsekey);
+
+
+                if key == 71;
+
+
+                    sprintf('sample')
+
+
+                    check = 1;
+
+
+                    beadresponse = 0;
+
+
+                    draws_to_decision = turn;
+
+
+                    %rt_beadresponse = ktime(1) - bead_stimulus_raw;
+
+
+                elseif key == 59;%key == 59;
+
+
+                    sprintf('decision')
+
+
+                    check = 1;
+
+
+                    beadresponse = 1;
+
+
+                    draws_to_decision = turn;
+
+
+                    %rt_beadresponse = ktime(1) - bead_stimulus_raw;
+
+
+                else
+
+
+                    clearkeys;
+
+
+                    check = 0;
+
+
+                end
+
+
+            end
+
+
+            if key == 71;
+
+
+                %-----------------------------------------------------------------------------------------
+
+
+                Data.trial(trial,1)                 =   trial;
+
+
+                Data.turn(trial,turn)               =   turn;
+
+
+                Data.bead_stimulus_raw(trial,turn)  =   bead_stimulus_raw;
+
+
+                Data.bead_stimulus(trial,turn)      =   bead_stimulus;
+
+
+                Data.ktime(trial,turn)              =   t;
+
+
+                Data.rt_relative_to_first_turn(trial,turn)  =   Data.ktime(trial,turn) - Data.first_stimulus_trial(trial,1);
+
+
+                % gives reaction time relative to first turn
+
+
+                
+
+
+                save(datafile,'Data');
+
+
+                clearkeys;
+
+
+                %-----------------------------------------------------------------------------------------
+
+
+                turn = turn + 1;
+
+
+                
+
+
+            elseif key == 59 && turn == 1;
+
+
+                
+
+
+                Data.trial(trial,1)                 =   trial;
+
+
+                Data.turn(trial,turn)               =   turn;
+
+
+                Data.bead_stimulus_raw(trial,turn)  =   bead_stimulus_raw;
+
+
+                Data.bead_stimulus(trial,1)         =   bead_stimulus;
+
+
+                Data.ktime(trial,turn)              =   t;
+
+
+                Data.draws_to_decision(trial,1)     =   draws_to_decision;
+
+
+                Data.rt_relative_to_first_turn(trial,turn)  =   Data.ktime(trial,turn) - Data.first_stimulus_trial(trial,1);
+
+
+                % gives reaction time relative to first turn
+
+
+                
+
+
+                save(datafile,'Data');
+
+
+                clearkeys;
+
+
+                
+
+
+                turn = 21;
+
+
+                
+
+
+                Data.turn(trial,turn)               =   turn;
+
+
+                Data.bead_stimulus_raw(trial,turn)  =   bead_stimulus_raw;
+
+
+                Data.bead_stimulus(trial,1)         =   bead_stimulus;
+
+
+                Data.ktime(trial,turn)              =   t;
+
+
+                Data.draws_to_decision(trial,1)     =   draws_to_decision;
+
+
+                Data.rt_relative_to_first_turn(trial,turn)  =   Data.ktime(trial,turn) - Data.first_stimulus_trial(trial,1);
+
+
+                % gives reaction time relative to first turn
+
+
+                
+
+
+                save(datafile,'Data');
+
+
+                clearkeys;
+
+
+                
+
+
+            elseif key == 59 && turn > 1;
+
+
+                
+
+
+                Data.turn(trial,turn)               =   turn;
+
+
+                Data.bead_stimulus_raw(trial,turn)  =   bead_stimulus_raw;
+
+
+                Data.bead_stimulus(trial,1)         =   bead_stimulus;
+
+
+                Data.ktime(trial,turn)              =   t;
+
+
+                Data.draws_to_decision(trial,1)     =   draws_to_decision;
+
+
+                Data.rt_relative_to_first_turn(trial,turn)  =   Data.ktime(trial,turn) - Data.first_stimulus_trial(trial,1);
+
+
+                % gives reaction time relative to first turn
+
+
+                
+
+
+                turn = 21;
+
+
+                
+
+
+                Data.turn(trial,turn)               =   turn;
+
+
+                Data.bead_stimulus_raw(trial,turn)  =   bead_stimulus_raw;
+
+
+                Data.bead_stimulus(trial,1)         =   bead_stimulus;
+
+
+                Data.ktime(trial,turn)              =   t;
+
+
+                Data.draws_to_decision(trial,1)     =   draws_to_decision;
+
+
+                Data.rt_relative_to_first_turn(trial,turn)  =   Data.ktime(trial,turn) - Data.first_stimulus_trial(trial,1);
+
+
+                % gives reaction time relative to first turn
+
+
+                
+
+
+                save(datafile,'Data');
+
+
+                clearkeys;
+
+
+                
+
+
+            end
+
+
+            
+
+
+            if turn == 21
+
+
+                break
+
+
+            end
+
+
+            
+
+
+        end
+
+
+        
+
+
+        if turn == 21 && beadresponse == 0;
+
+
+            Data.draws_to_decision(trial,1)= 20;
+
+
+            save(datafile,'Data');
+
+
+        end
+
+
+        
+
+
+        
+
+
+        
+
+
+        if turn == 21;
+
+
+            
+
+
+            clearkeys;
+
+
+            
+
+
+            cgflip(0,0,0);
+
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+            D2D_decision_screen_60_40
+
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+            % displays the D2D task decision making screen
+
+
+            cgflip(0,0,0);
+
+
+            
+
+
+            time_decision_box = time;
+
+
+            
+
+
+            check = 0;
+
+
+            while check == 0;
+
+
+                
+
+
+                waitkeydown(inf);
+
+
+                [key, t, kn] = getkeydown(inf, choicekey);
+
+
+                
+
+
+                if key == 97; %key == 97;     % if ARROW LEFT is pressed
+
+
+                    sprintf('left - orange')
+
+
+                    choicekey = 97;
+
+
+                    decision_box = 1;
+
+
+                    check = 1;
+
+
+                    ktime_box = t;
+
+
+                    %rt_decision_box = ktime - time_decision_box;
+
+
+                elseif key == 98;
+
+
+                    sprintf('right - violet')
+
+
+                    decision_box = 2;
+
+
+                    choicekey = 98;
+
+
+                    check = 1;
+
+
+                    ktime_box = t;
+
+
+                    %rt_decision_box = ktime - time_decision_box;
+
+
+                else
+
+
+                    clearkeys;
+
+
+                end
+
+
+            end
+
+
+        end
+
+
+        
+
+
+        
+
+
+        
+
+
+        a = numel(find(Data.Whole_Trial_Matrix(trial,1:20) > 1.1));
+
+
+        b = numel(find(Data.Whole_Trial_Matrix(trial,1:20) < 1.1));
+
+
+        
+
+
+        if a > 10 && b < 10;       % if more "2"s than "1"s are included in the sequence
+
+
+            correct_box = 2;
+
+
+        elseif a < 10 && b > 10;   % if more "1"s than "2"s are included in the sequence
+
+
+            correct_box = 1;
+
+
+        elseif a == b;             % if both colours are equally likely
+
+
+            correct_box = 99;
+
+
+        end
+
+
+        
+
+
+        if decision_box ~= correct_box && correct_box ~= 99;
+
+
+            sprintf('wrong decision')
+
+
+            counter_correct_decision = counter_correct_decision;
+
+
+        elseif decision_box == correct_box;
+
+
+            sprintf('correct decision')
+
+
+            counter_correct_decision = counter_correct_decision + 1;
+
+
+        elseif decision_box == 1 && correct_box == 99 || decision_box == 2 && correct_box == 99;
+
+
+            sprintf('no decision possible \n 50-50 distribution')
+
+
+            counter_correct_decision = counter_correct_decision;
+
+
+        end
+
+
+        
+
+
+        %------------------------------------------------------------------------------------------------
+
+
+        Data.trial(trial,1)                     =   trial;
+
+
+        Data.turn(trial,turn)                   =   turn;
+
+
+        Data.bead_stimulus(trial,turn)          =   bead_stimulus;
+
+
+        Data.time_decision_box(trial,1)         =   time_decision_box;
+
+
+        Data.decision_box(trial,1)              =   decision_box;
+
+
+        Data.ktime_box(trial,1)                 =   ktime_box;
+
+
+        %Data.rt_decision_box(trial,1)           =   rt_decision_box;
+
+
+        Data.correct_box(trial,1)               =   correct_box;
+
+
+        Data.counter_correct_decision(trial,1)  =   counter_correct_decision;
+
+
+        Data.decision_time_rel_to_first_turn(trial,1)  =   Data.ktime_box(trial,1) - Data.first_stimulus_trial(trial,1);
+
+
+        % gives decision time relative to first turn
+
+
+        
+
+
+        save(datafile,'Data');
+
+
+        clear time_parallel key_parallel ktime_box key kn beadcolour turn subturn beadcolour_subturn
+
+
+        %------------------------------------------------------------------------------------------------
+
+
+        cgflip(0,0,0);
+
+
+        waituntil(time+500);
+
+
+        
+
+
+        trial = trial +1;
+
+
+        
+
+
+    end
+
+
+    
+
+
+    if trial == 51;
+
+
+        for i = 1:19
+
+
+            Data.D2D_rt_beadresponse(i,1:20) = [Data.ktime(i,1:20) - Data.bead_stimulus_raw(i,1:20)];
+
+
+            Data.D2D_rt_decision_box(i,1) = [Data.ktime_box(i,1) - Data.time_decision_box(i,1)];
+
+
+        end
+
+
+        clear i
+
+
+        for i = 20:31;
+
+
+            Data.D2D_rt_beadresponse(i,1:20) = 0;
+
+
+            Data.D2D_rt_decision_box(i,1) = 0;
+
+
+        end
+
+
+        clear i
+
+
+        % Note: if the rt_times are calculated earlier, there miscalculations, when
+
+
+        % subjects press really fast.
+
+
+        for i = 32:50;
+
+
+            Data.D2D_rt_beadresponse(i,1:20) = [Data.ktime(i,1:20) - Data.bead_stimulus_raw(i,1:20)];
+
+
+            Data.D2D_rt_decision_box(i,1) = Data.ktime_box(i,1) - Data.time_decision_box(i,1);
+
+
+        end
+
+
+        clear i
+
+
+        % Note: if the rt_times are calculated earlier, there miscalculations, when
+
+
+        % subjects press really fast.
+
+
+        save(datafile, 'Data');
+
+
+        
+
+
+        part = 4;
+
+
+        
+
+
+    end
+
+
+end
+
+
+ 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+if part == 4;
+
+
+    clearkeys;
+
+
+    readkeys;
+
+
+    
+
+
+    cgflip(0,0,0);
+
+
+    cgpencol(1,1,1);
+
+
+    cgfont('Calibri', 50)
+
+
+    cgtext('!! Thank you for participating !!',0,250)
+
+
+    %cgtext('!! and helping us pursue our objective !!',0,0)
+
+
+    cgfont('Calibri', 35)
+
+
+    cgtext('Please press ENTER to exit the task.',0,-300)
+
+
+    cgflip(0,0,0);
+
+
+end
+
+
+ 
+
+
+waitkeydown(inf, 59);
+
+
+ 
+
+
+Data.when_stop  =   datestr([now],0);   % log end of experiment
+
+
+%-------------------------------------------------------------------------
+
+
+%-------------------------------------------------------------------------
+
+
+ 
+
+
+Data.trial_label = Data.Whole_Trial_Matrix(:,22);
+
+
+Data.trial_percentages = Data.Whole_Trial_Matrix(:,21);
+
+
+Data.trial_type = Data.Whole_Trial_Matrix(:,23);
+
+
+ 
+
+
+for i = 1:50
+
+
+    % create an empty column to separate the variables in the large
+
+
+    % results overview matrix
+
+
+    Data.empty_column(i,1) = [0];
+
+
+end
+
+
+clear i
+
+
+ 
+
+
+for i = 1:31;
+
+
+    Data.PEV_rt_rating(i,1:10) = Data.ktime_PEV_raw(i,1:10) - Data.baseline_PEV(i,1);
+
+
+    
+
+
+end
+
+
+clear i
+
+
+ 
+
+
+for i = 32:50;
+
+
+    Data.PEV_rt_rating(i,1:10) = 0;
+
+
+    Data.PEV_threshold(i,1:10) = 0;
+
+
+    Data.position_cursor(i,1:10) = 0;
+
+
+    Data.PEV_decision_yes(i,1) = 0;
+
+
+    Data.baseline_PEV(i,1) = 0;
+
+
+    Data.ktime_PEV_raw(i,1:10) = 0;
+
+
+end
+
+
+clear i
+
+
+ 
+
+
+for i = 1:50;
+
+
+    % calculate mean without counting zeros
+
+
+    Data.mean_rt_beadresponse(i,:) = sum(Data.D2D_rt_beadresponse(i,1:20),2) / sum(Data.D2D_rt_beadresponse(i,1:20)~=0,2); % = sum(A,2) ./ sum(A~=0,2)
+
+
+end
+
+
+clear i
+
+
+ 
+
+
+save(datafile,'Data');
+
+
+ 
+
+
+Data.Beadstask_complete_results_matrix = [Data.trial,Data.trial_label,Data.trial_percentages,Data.trial_type,Data.empty_column,Data.turn,Data.baseline__D2D(:,1),Data.D2D_rt_beadresponse,Data.mean_rt_beadresponse,Data.draws_to_decision,Data.baseline__D2D(:,1),Data.time_decision_box,Data.decision_box,Data.correct_box,Data.counter_correct_decision,Data.baseline__D2D(:,1),Data.D2D_rt_decision_box,Data.empty_column,Data.baseline_PEV(:,1),Data.ktime_PEV_raw,Data.PEV_rt_rating,Data.position_cursor,Data.PEV_threshold,Data.PEV_decision_yes];
+
+
+% Code for the large results overview matrix
+
+
+for i = 1:50;
+
+
+    for ii = 1:99;
+
+
+        if Data.Beadstask_complete_results_matrix(i,ii) == 0;
+
+
+            Data.Beadstask_complete_results_matrix(i,ii) = NaN;
+
+
+        end
+
+
+    end
+
+
+end
+
+
+% substitutes all zeros with NaN!
+
+
+save(datafile,'Data');
+
+
+ 
+
+
+waituntil(time+250);
+
+
+cgshut
+
+
+stop_cogent;
+
+
+ 
+
+
+waituntil(time+5000);
+
+
+%-------------------------------------------------------------------------
+
+
+%-------------------------------------------------------------------------
+
+
+%-------------------------------------------------------------------------------------
+
+
+clear all
+
+
+ 
+
+
+end
+
+
+ 
+
+
+ 
+
+
